@@ -1,0 +1,372 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 99%;
+    --foreground: 220 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 12%;
+
+    --primary: 28 95% 49%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 20% 12%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 46%;
+
+    --accent: 200 80% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 28 95% 49%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 28 95% 49%;
+
+    /* Custom tokens */
+    --surface-warm: 30 50% 97%;
+    --surface-dark: 220 20% 12%;
+    --surface-dark-foreground: 0 0% 95%;
+    --highlight: 45 100% 51%;
+    --highlight-foreground: 220 20% 12%;
+    --success: 145 63% 42%;
+    --success-foreground: 0 0% 100%;
+
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    --gradient-hero: linear-gradient(135deg, hsl(220 20% 12%) 0%, hsl(220 30% 18%) 50%, hsl(28 60% 20%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(28 95% 49%), hsl(35 95% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(200 80% 50%), hsl(210 80% 60%));
+
+    --shadow-card: 0 2px 12px -2px hsl(220 20% 12% / 0.08);
+    --shadow-card-hover: 0 8px 24px -4px hsl(220 20% 12% / 0.14);
+    --shadow-hero: 0 20px 60px -10px hsl(28 95% 49% / 0.25);
+  }
+
+  .dark {
+    --background: 220 20% 7%;
+    --foreground: 0 0% 95%;
+    --card: 220 20% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 220 20% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 28 95% 49%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 220 14% 16%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 200 80% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 220 14% 18%;
+    --input: 220 14% 18%;
+    --ring: 28 95% 49%;
+    --sidebar-background: 220 20% 7%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 28 95% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 14%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 14% 18%;
+    --sidebar-ring: 28 95% 49%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
+
+@layer utilities {
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  .shadow-card-hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+}
+
+/* ==========================================
+   SCROLL-REVEAL ANIMATIONS
+   ========================================== */
+
+/* Base hidden state for scroll-reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered children */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.stagger-children.visible > *:nth-child(1) { transition-delay: 0ms; }
+.stagger-children.visible > *:nth-child(2) { transition-delay: 60ms; }
+.stagger-children.visible > *:nth-child(3) { transition-delay: 120ms; }
+.stagger-children.visible > *:nth-child(4) { transition-delay: 180ms; }
+.stagger-children.visible > *:nth-child(5) { transition-delay: 240ms; }
+.stagger-children.visible > *:nth-child(6) { transition-delay: 300ms; }
+.stagger-children.visible > *:nth-child(7) { transition-delay: 360ms; }
+.stagger-children.visible > *:nth-child(8) { transition-delay: 420ms; }
+.stagger-children.visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero text reveal (slide from left) */
+.hero-reveal {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-reveal.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Scale-up reveal */
+.scale-reveal {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.scale-reveal.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ==========================================
+   MICRO-ANIMATIONS & EFFECTS
+   ========================================== */
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(1deg); }
+  66% { transform: translateY(-6px) rotate(-1deg); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Pulse glow effect */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(28 95% 49% / 0.3); }
+  50% { box-shadow: 0 0 20px 4px hsl(28 95% 49% / 0.15); }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Shimmer effect for badges */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, hsl(0 0% 100% / 0.15) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Gradient text shimmer */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-text {
+  background-size: 200% auto;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+/* Smooth counter animation */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-count-up {
+  animation: count-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Trust bar slide */
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Particle / sparkle dot */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* ==========================================
+   CATEGORY CARD ANIMATIONS
+   ========================================== */
+
+.cat-card {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.4s ease;
+}
+
+.cat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(234, 88, 12, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.cat-icon {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s ease;
+}
+
+.cat-prop {
+  animation: cat-spin 3s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes cat-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.cat-particle {
+  animation: cat-float 1.2s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes cat-float {
+  0% { opacity: 0; transform: translateY(10px) scale(0.5); }
+  40% { opacity: 0.8; transform: translateY(-5px) scale(1); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.6); }
+}
+
+/* ==========================================
+   NEURAL NETWORK CANVAS
+   ========================================== */
+
+.neuron-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+@media (max-width: 768px) {
+  .neuron-canvas { display: none; }
+}
+
+/* ==========================================
+   HERO CAROUSEL
+   ========================================== */
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.hero-slide--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.03);
+}
+
+.hero-slide--active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+  z-index: 2;
+}
+
+/* Dot indicators */
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-dot--active {
+  width: 32px;
+  background: hsl(28 95% 49%);
+  box-shadow: 0 0 12px hsl(28 95% 49% / 0.4);
+}
+
+.hero-dot:hover:not(.hero-dot--active) {
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.3);
+}
+
+/* Progress bar animation */
+@keyframes hero-progress-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+.hero-progress {
+  animation: hero-progress-fill 5s linear forwards;
+}
