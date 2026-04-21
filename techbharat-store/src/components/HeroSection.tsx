@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ArrowRight, Zap, Truck, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { fetchHeroSlides } from "@/lib/storeApi";
 
 interface HeroSlide {
@@ -17,11 +18,34 @@ interface HeroSlide {
 
 const defaultSlides: HeroSlide[] = [
   {
+    id: "default-1",
     title: "Build the Future with TechBharat",
     subtitle: "Explore Arduino, Raspberry Pi, Drone Parts, EV Kits, 3D Printing & more. Fast nationwide delivery with 24×7 support.",
     badge_text: "India's #1 Robotics & Electronics Store",
     cta_primary_text: "Shop Now",
+    cta_primary_link: "/products",
     cta_secondary_text: "View Deals",
+    cta_secondary_link: "/products?tag=deal",
+  },
+  {
+    id: "default-2",
+    title: "Arduino & Raspberry Pi Essentials",
+    subtitle: "From starter kits to advanced shields — everything you need to bring your maker projects to life.",
+    badge_text: "🔥 Bestsellers Inside",
+    cta_primary_text: "Explore Boards",
+    cta_primary_link: "/products?category=arduino",
+    cta_secondary_text: "Raspberry Pi",
+    cta_secondary_link: "/products?category=raspberry-pi",
+  },
+  {
+    id: "default-3",
+    title: "Drone Kits & EV Components",
+    subtitle: "Build your own drone or electric vehicle with premium parts. Up to 30% off on select kits this month!",
+    badge_text: "⚡ Limited Time Offer",
+    cta_primary_text: "Shop Drones",
+    cta_primary_link: "/products?category=drone-parts",
+    cta_secondary_text: "EV Parts",
+    cta_secondary_link: "/products?category=ev-components",
   },
 ];
 
@@ -36,15 +60,25 @@ const HeroSection = () => {
   const touchStart = useRef(0);
 
   useEffect(() => {
-    fetchHeroSlides().then((data) => {
-      if (data && data.length > 0) setSlides(data);
-      setTimeout(() => setLoaded(true), 100);
-    });
+    fetchHeroSlides()
+      .then((data) => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setSlides(data);
+        }
+        // else: keep defaultSlides (which already has 3 slides for carousel)
+      })
+      .catch(() => {
+        // Keep default slides on error
+      })
+      .finally(() => {
+        setTimeout(() => setLoaded(true), 100);
+      });
   }, []);
 
   // Autoplay
   const startAutoplay = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
+    if (slides.length <= 1) return;
     timerRef.current = setInterval(() => {
       setDirection("next");
       setCurrent((p) => (p + 1) % slides.length);
@@ -168,6 +202,36 @@ const HeroSection = () => {
                     {slide.subtitle}
                   </p>
 
+                  {/* CTA Buttons */}
+                  <div
+                    className={`flex flex-wrap items-center gap-4 mb-8 transition-all duration-700 delay-[450ms] ${
+                      idx === current && loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                    }`}
+                  >
+                    {slide.cta_primary_text && (
+                      <Link to={slide.cta_primary_link || "/products"}>
+                        <Button
+                          size="lg"
+                          className="bg-gradient-to-r from-primary to-orange-600 text-white font-heading font-semibold rounded-xl gap-2 shadow-[0_4px_20px_rgba(234,88,12,0.3)] hover:shadow-[0_6px_28px_rgba(234,88,12,0.45)] hover:scale-[1.03] transition-all duration-300 px-7 h-12"
+                        >
+                          {slide.cta_primary_text}
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                    )}
+                    {slide.cta_secondary_text && (
+                      <Link to={slide.cta_secondary_link || "/products"}>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          className="border-2 border-white text-white bg-white/10 font-heading font-semibold rounded-xl gap-2 hover:bg-white/20 hover:border-primary transition-all duration-300 px-7 h-12 backdrop-blur-sm"
+                        >
+                          {slide.cta_secondary_text}
+                        </Button>
+                      </Link>
+                    )}
+                  </div>
+
                   {/* Dots INSIDE banner content area */}
                   {slides.length > 1 && (
                     <div className={`flex items-center gap-2.5 transition-all duration-700 delay-[600ms] ${
@@ -188,6 +252,8 @@ const HeroSection = () => {
             </div>
           </div>
         ))}
+
+
 
         {/* Progress bar inside banner */}
         {slides.length > 1 && (
