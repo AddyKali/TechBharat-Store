@@ -30,8 +30,8 @@ const AdminLogin = () => {
       await adminApi.login(email, password);
       toast({ title: "Welcome back, Admin!", description: "Redirecting to dashboard..." });
       navigate("/admin/dashboard");
-    } catch {
-      toast({ title: "Login Failed", description: "Invalid email or password", variant: "destructive" });
+    } catch (err: any) {
+      toast({ title: "Login Failed", description: err?.message || "Invalid email or password", variant: "destructive" });
     } finally {
       setLoading(false);
     }

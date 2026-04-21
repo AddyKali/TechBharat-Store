@@ -1,6 +1,6 @@
 import { featuredProducts as mockProducts, categories as mockCategories } from "@/data/mockData";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 // No-cache fetch helper — always gets fresh data
 async function freshFetch(url: string) {

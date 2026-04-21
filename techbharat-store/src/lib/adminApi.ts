@@ -26,20 +26,29 @@ class AdminAPI {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string> || {}),
     };
-    
+
     if (this.token) {
       headers['x-admin-token'] = this.token;
     }
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_URL}${endpoint}`, {
+        ...options,
+        headers,
+      });
+    } catch (networkError) {
+      throw new Error(`Cannot reach server at ${API_URL}. Make sure the backend is running (npm run server).`);
+    }
 
     if (response.status === 401) {
-      this.clearToken();
-      window.location.href = '/admin';
-      throw new Error('Unauthorized');
+      // Only redirect to login for non-login endpoints (expired session)
+      if (!endpoint.includes('/login')) {
+        this.clearToken();
+        window.location.href = '/admin';
+      }
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Invalid credentials');
     }
 
     const data = await response.json();

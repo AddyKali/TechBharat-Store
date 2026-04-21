@@ -10,8 +10,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env from project root (one level up from server/)
+// Load .env — try project root first, then git repo root (one level up)
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,10 +20,27 @@ const PORT = process.env.PORT || 3001;
 // Supabase client with service role (admin privileges)
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+let supabase = null;
+if (supabaseUrl && supabaseKey) {
+  supabase = createClient(supabaseUrl, supabaseKey);
+} else {
+  console.warn('⚠️  Supabase not configured. Set VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env');
+  console.warn('   Admin login will work, but database features will be unavailable.');
+}
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:8080', 'http://localhost:5173', 'http://localhost:3000'], credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    // Allow any localhost origin and Vercel deployments
+    if (origin.match(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/) || origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -40,10 +58,18 @@ const upload = multer({
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@techbharat.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'TechBharat@2026';
 
+// Guard middleware: ensures Supabase is configured before hitting DB routes
+const requireDB = (req, res, next) => {
+  if (!supabase) {
+    return res.status(503).json({ error: 'Database not configured. Set VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env' });
+  }
+  next();
+};
+
 const adminAuth = (req, res, next) => {
   const token = req.headers['x-admin-token'];
   if (token === Buffer.from(`${ADMIN_EMAIL}:${ADMIN_PASSWORD}`).toString('base64')) {
-    next();
+    requireDB(req, res, next);
   } else {
     res.status(401).json({ error: 'Unauthorized' });
   }
@@ -58,6 +84,12 @@ app.post('/api/admin/login', (req, res) => {
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
   }
+});
+
+// Guard all DB-dependent API routes (login and health don't need DB)
+app.use('/api', (req, res, next) => {
+  if (req.path === '/admin/login' || req.path === '/health') return next();
+  requireDB(req, res, next);
 });
 
 // ============ INIT DB (Seed Data) ============
@@ -675,12 +707,24 @@ app.delete('/api/admin/footer-links/:id', adminAuth, async (req, res) => {
 
 // ============ HEALTH CHECK ============
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', supabase: !!supabase, timestamp: new Date().toISOString() });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 TechBharat Admin Server running on http://localhost:${PORT}`);
-  console.log(`📧 Admin Login: ${ADMIN_EMAIL}`);
-  console.log(`🔑 Admin Password: ${ADMIN_PASSWORD}\n`);
+// Global error handler — prevents unhandled errors from crashing the server
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({ error: err.message || 'Internal server error' });
 });
+
+// Export for Vercel serverless
+export default app;
+
+// Only listen when running locally (not on Vercel)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n🚀 TechBharat Admin Server running on http://localhost:${PORT}`);
+    console.log(`📧 Admin Login: ${ADMIN_EMAIL}`);
+    console.log(`🔑 Admin Password: ${ADMIN_PASSWORD}\n`);
+  });
+}
 
