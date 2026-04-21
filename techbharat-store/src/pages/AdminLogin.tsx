@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Shield, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,14 +10,18 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Check if already logged in
-  if (adminApi.getToken()) {
-    navigate("/admin/dashboard");
-    return null;
-  }
+  // Check if already logged in — must be inside useEffect, not render
+  useEffect(() => {
+    if (adminApi.getToken()) {
+      navigate("/admin/dashboard", { replace: true });
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +36,15 @@ const AdminLogin = () => {
       setLoading(false);
     }
   };
+
+  // Show nothing while checking auth to avoid flash
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[hsl(220,20%,7%)]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[hsl(220,20%,7%)] relative overflow-hidden">

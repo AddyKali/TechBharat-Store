@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Shield } from "lucide-react";
 import { fetchFooterLinks } from "@/lib/storeApi";
 
 interface FooterLink {
@@ -114,10 +115,19 @@ const Footer = () => {
           <p className="text-xs text-surface-dark-foreground/40">
             © 2026 TechBharat Store. All rights reserved.
           </p>
-          <div className="flex gap-4 text-xs text-surface-dark-foreground/40">
+          <div className="flex items-center gap-4 text-xs text-surface-dark-foreground/40">
             <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
             <Link to="/sitemap" className="hover:text-primary transition-colors">Sitemap</Link>
+            <Link
+              to="/admin"
+              id="admin-access-btn"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-dark-foreground/[0.04] border border-surface-dark-foreground/[0.06] text-surface-dark-foreground/30 hover:text-primary hover:border-primary/30 hover:bg-primary/[0.06] hover:shadow-[0_0_15px_rgba(234,88,12,0.15)] transition-all duration-300"
+              title="Admin Panel"
+            >
+              <Shield className="w-3 h-3" />
+              <span className="hidden sm:inline">Admin</span>
+            </Link>
           </div>
         </div>
       </div>
